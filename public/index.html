@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>अर्थ मन्त्रालय (Artha Mantralaya) - Offline Expense Manager & Group Splitter</title>
+  <meta name="description" content="Nepal's premier offline personal expense tracker, monthly budget planner, and group bill splitter. 100% offline, private, and secure.">
+  <meta name="theme-color" content="#1976D2">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+  <link rel="apple-touch-icon" href="/icons/logo.jpg">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Rozha+One&display=swap" rel="stylesheet">
+</head>
+<body class="light-theme">
+
+  <!-- PIN Lock Overlay (Active if PIN is set) -->
+  <div id="pinLockScreen" class="pin-lock-screen hidden">
+    <div class="pin-lock-card">
+      <div class="pin-lock-header">
+        <img src="/icons/icon.svg" alt="Artha Mantralaya Logo" class="pin-logo">
+        <h2 id="pinTitle">अर्थ मन्त्रालय</h2>
+        <p id="pinSubtitle">सुरक्षा PIN प्रविष्ट गर्नुहोस् (Enter Security PIN)</p>
+      </div>
+      <div class="pin-dots">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+      <div class="pin-keypad">
+        <button class="key-btn" data-key="1">1</button>
+        <button class="key-btn" data-key="2">2</button>
+        <button class="key-btn" data-key="3">3</button>
+        <button class="key-btn" data-key="4">4</button>
+        <button class="key-btn" data-key="5">5</button>
+        <button class="key-btn" data-key="6">6</button>
+        <button class="key-btn" data-key="7">7</button>
+        <button class="key-btn" data-key="8">8</button>
+        <button class="key-btn" data-key="9">9</button>
+        <button class="key-btn empty-key" disabled></button>
+        <button class="key-btn" data-key="0">0</button>
+        <button class="key-btn action-key" data-key="backspace">⌫</button>
+      </div>
+      <p id="pinError" class="pin-error hidden">गलत PIN! कृपया पुनः प्रयास गर्नुहोस्।</p>
+    </div>
+  </div>
+
+  <!-- App Wrapper -->
+  <div class="app-wrapper">
+    
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-container">
+        <!-- Brand Identity -->
+        <div class="brand-box" id="brandBtn">
+          <img src="/icons/icon.svg" alt="Artha Mantralaya" class="brand-icon">
+          <div class="brand-text">
+            <h1 class="brand-title">अर्थ मन्त्रालय</h1>
+            <span class="brand-subtitle">Artha Mantralaya</span>
+          </div>
+        </div>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="desktop-nav" aria-label="Main Navigation">
+          <button class="nav-tab active" data-tab="home" id="tabHomeDesktop">
+            <span class="tab-icon">🏠</span>
+            <span class="tab-label" data-i18n="tabHome">गृहपृष्ठ</span>
+          </button>
+          <button class="nav-tab" data-tab="personal" id="tabPersonalDesktop">
+            <span class="tab-icon">👤</span>
+            <span class="tab-label" data-i18n="tabPersonal">व्यक्तिगत</span>
+          </button>
+          <button class="nav-tab" data-tab="group" id="tabGroupDesktop">
+            <span class="tab-icon">👥</span>
+            <span class="tab-label" data-i18n="tabGroup">समूह</span>
+          </button>
+          <button class="nav-tab" data-tab="reports" id="tabReportsDesktop">
+            <span class="tab-icon">📊</span>
+            <span class="tab-label" data-i18n="tabReports">रिपोर्ट</span>
+          </button>
+        </nav>
+
+        <!-- Right Action Tools -->
+        <div class="header-actions">
+          <!-- Real APK Download Button -->
+          <a href="/download/artha-mantralaya.apk" download="artha-mantralaya.apk" class="download-app-btn" id="downloadAppBtn" title="Download Android APK">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+              <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
+            </svg>
+            <span class="btn-text">
+              <span class="text-primary" data-i18n="downloadApp">Download App</span>
+              <span class="badge-apk" id="apkBadge">APK</span>
+            </span>
+          </a>
+
+          <!-- Language Switcher -->
+          <button class="icon-tool-btn" id="langToggleBtn" title="Change Language / भाषा फेर्नुहोस्">
+            <span id="langDisplay">🇳🇵</span>
+          </button>
+
+          <!-- Theme Toggle -->
+          <button class="icon-tool-btn" id="themeToggleBtn" title="Toggle Light/Dark Theme">
+            <span id="themeDisplay">🌙</span>
+          </button>
+
+          <!-- Settings Button -->
+          <button class="icon-tool-btn" id="settingsBtn" title="Settings / सेटिङहरू">
+            <span>⚙️</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="app-main" id="mainContent">
+
+      <!-- ================= 1. HOME VIEW (DASHBOARD) ================= -->
+      <section id="view-home" class="view-section active">
+        
+        <!-- Welcome Hero Banner -->
+        <div class="welcome-card">
+          <div class="welcome-info">
+            <div class="user-avatar" id="homeUserAvatar">B</div>
+            <div>
+              <div class="greeting-text" data-i18n="welcome">नमस्ते (Welcome)</div>
+              <h2 class="user-display-name" id="homeUserName">Bibash</h2>
+            </div>
+          </div>
+          <div class="month-selector-badge">
+            <label for="activeMonthSelect" class="sr-only">महिना</label>
+            <select id="activeMonthSelect" class="month-dropdown"></select>
+          </div>
+        </div>
+
+        <!-- Monthly Budget Overview Card -->
+        <div class="budget-card">
+          <div class="budget-header">
+            <div>
+              <span class="budget-label" data-i18n="monthlyBudget">मासिक बजेट (Monthly Budget)</span>
+              <div class="budget-amount" id="budgetLimitDisplay">रु 0.00</div>
+            </div>
+            <button class="edit-budget-btn" id="editBudgetBtn" title="Edit Budget">
+              ✏️ <span data-i18n="editBudget">बजेट सेट</span>
+            </button>
+          </div>
+
+          <!-- Visual Progress Bar -->
+          <div class="budget-progress-container">
+            <div class="progress-track">
+              <div class="progress-fill" id="budgetProgressFill" style="width: 0%;"></div>
+            </div>
+            <div class="progress-stats">
+              <span id="budgetPercentage">0% खर्च भएको</span>
+              <span id="budgetStatusText" class="status-safe">सुरक्षित दायरामा</span>
+            </div>
+          </div>
+
+          <!-- Spending Grid -->
+          <div class="budget-grid">
+            <div class="budget-stat-box spent-box">
+              <span class="stat-caption" data-i18n="spent">खर्च भएको (Spent)</span>
+              <span class="stat-value text-spent" id="budgetSpentDisplay">रु 0.00</span>
+            </div>
+            <div class="budget-stat-box remaining-box">
+              <span class="stat-caption" data-i18n="remaining">बाँकी रकम (Remaining)</span>
+              <span class="stat-value text-remaining" id="budgetRemainingDisplay">रु 0.00</span>
+            </div>
+          </div>
+
+          <!-- Overbudget Alert banner -->
+          <div id="overbudgetWarning" class="alert-banner warning-banner hidden">
+            ⚠️ <span data-i18n="overbudgetNotice">सावधान! तपाईंको खर्च यस महिनाको बजेट सीमाभन्दा बढी भएको छ।</span>
+          </div>
+        </div>
+
+        <!-- Quick Actions Row -->
+        <div class="quick-actions-row">
+          <button class="quick-action-btn primary-action" id="quickAddPersonalBtn">
+            <span class="btn-icon">➕👤</span>
+            <span data-i18n="addExpense">+ व्यक्तिगत खर्च</span>
+          </button>
+          <button class="quick-action-btn secondary-action" id="quickAddGroupBtn">
+            <span class="btn-icon">➕👥</span>
+            <span data-i18n="addGroupExpense">+ समूह खर्च</span>
+          </button>
+        </div>
+
+        <!-- Group Splitter Glance Card -->
+        <div class="dashboard-section-card">
+          <div class="section-card-header">
+            <h3 class="section-title">
+              <span>👥</span> <span data-i18n="groupOverview">समूह हिसाब सारांश (Group Overview)</span>
+            </h3>
+            <button class="card-link-btn" id="gotoGroupBtn" data-i18n="viewDetails">विस्तृत हेर्नुहोस् →</button>
+          </div>
+          <div id="homeGroupSummaryContent">
+            <div class="empty-state-mini">
+              <p data-i18n="noGroupSummary">कुनै समूह कारोबार छैन।</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Personal Transactions Card -->
+        <div class="dashboard-section-card">
+          <div class="section-card-header">
+            <h3 class="section-title">
+              <span>⏱️</span> <span data-i18n="recentTransactions">भर्खरका कारोबारहरू (Recent Activity)</span>
+            </h3>
+            <button class="card-link-btn" id="gotoPersonalBtn" data-i18n="viewAll">सबै हेर्नुहोस् →</button>
+          </div>
+          <div id="homeRecentList" class="tx-cards-container">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= 2. PERSONAL EXPENSES VIEW ================= -->
+      <section id="view-personal" class="view-section">
+        
+        <!-- Search & Control Header -->
+        <div class="view-header">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="personalSearchInput" class="search-input" placeholder="शीर्षक वा विवरण खोज्नुहोस्... (Search...)">
+            <button class="clear-search-btn hidden" id="clearPersonalSearchBtn">✕</button>
+          </div>
+          
+          <div class="sort-selector-box">
+            <label for="personalSortSelect" class="sr-only">Sort</label>
+            <select id="personalSortSelect" class="sort-dropdown">
+              <option value="date_desc">मिति: नयाँ पहिले (Newest)</option>
+              <option value="date_asc">मिति: पुरानो पहिले (Oldest)</option>
+              <option value="amount_desc">रकम: धेरैबाट थोरै (High-Low)</option>
+              <option value="amount_asc">रकम: थोरैबाट धेरै (Low-High)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Category Filter Chips Row -->
+        <div class="category-chips-scroll" id="categoryChips">
+          <button class="chip active" data-cat="all">सबै (All)</button>
+          <button class="chip" data-cat="food">खाना (Food)</button>
+          <button class="chip" data-cat="transport">यातायात (Transport)</button>
+          <button class="chip" data-cat="education">शिक्षा (Education)</button>
+          <button class="chip" data-cat="rent">घरभाडा (Rent)</button>
+          <button class="chip" data-cat="shopping">किनमेल (Shopping)</button>
+          <button class="chip" data-cat="entertainment">मनोरञ्जन (Entertainment)</button>
+          <button class="chip" data-cat="health">स्वास्थ्य (Health)</button>
+          <button class="chip" data-cat="utilities">उपयोगिता (Utilities)</button>
+          <button class="chip" data-cat="others">अन्य (Others)</button>
+        </div>
+
+        <!-- History Count & Total Header -->
+        <div class="history-meta-bar">
+          <span class="history-count" id="personalHistoryCount">कारोबारहरू (0)</span>
+          <span class="history-total" id="personalHistoryTotal">जम्मा: रु 0.00</span>
+        </div>
+
+        <!-- Expense Cards Container -->
+        <div id="personalExpenseList" class="tx-cards-container">
+          <!-- Loaded dynamically -->
+        </div>
+
+        <!-- Floating Action Button for Adding Expense -->
+        <button class="fab-btn" id="fabAddPersonalBtn" title="Add Personal Expense">
+          <span>➕</span>
+        </button>
+
+      </section>
+
+      <!-- ================= 3. GROUP SPLITTER VIEW ================= -->
+      <section id="view-group" class="view-section">
+        
+        <!-- Group Sub-Tabs Navigation -->
+        <div class="subtabs-nav">
+          <button class="subtab-btn active" data-subtab="summary" id="subtabSummary">
+            <span>📊</span> <span data-i18n="subtabSummary">सारांश (Summary)</span>
+          </button>
+          <button class="subtab-btn" data-subtab="members" id="subtabMembers">
+            <span>👥</span> <span data-i18n="subtabMembers">सदस्यहरू (Members)</span>
+          </button>
+          <button class="subtab-btn" data-subtab="transactions" id="subtabTransactions">
+            <span>📝</span> <span data-i18n="subtabTransactions">लेनदेन (Transactions)</span>
+          </button>
+        </div>
+
+        <!-- 3.1 Group Summary Sub-View -->
+        <div id="group-subview-summary" class="subview-panel active">
+          
+          <!-- Key Metrics -->
+          <div class="group-metrics-grid">
+            <div class="metric-card">
+              <span class="metric-title" data-i18n="totalGroupExpenses">कुल समूह खर्च</span>
+              <span class="metric-value text-primary" id="groupTotalSpent">रु 0.00</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-title" data-i18n="totalMembers">कुल सदस्य संख्या</span>
+              <span class="metric-value" id="groupMemberCount">0 जना</span>
+            </div>
+          </div>
+
+          <!-- Net Balances List Card -->
+          <div class="dashboard-section-card">
+            <div class="section-card-header">
+              <h3 class="section-title">
+                <span>⚖️</span> <span data-i18n="memberBalances">सदस्यहरूको खुद हिसाब (Net Balances)</span>
+              </h3>
+            </div>
+            <div id="groupBalancesList" class="balances-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Smart Settlement Plan Card -->
+          <div class="dashboard-section-card">
+            <div class="section-card-header">
+              <h3 class="section-title">
+                <span>🤝</span> <span data-i18n="settlementPlan">ऋण फरफारक योजना (Settlement Plan)</span>
+              </h3>
+            </div>
+            <p class="section-description" data-i18n="settlementDesc">
+              न्यूनतम लेनदेनमा हिसाब मिलाउन स्वचालित गणना गरिएको फरफारक योजना:
+            </p>
+            <div id="groupSettlementsList" class="settlements-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 3.2 Group Members Sub-View -->
+        <div id="group-subview-members" class="subview-panel">
+          <div class="members-header-bar">
+            <h3 class="subsection-title" data-i18n="groupMembersTitle">समूहका सदस्यहरू</h3>
+            <button class="btn-primary-sm" id="openAddMemberBtn">
+              ➕ <span data-i18n="addMember">सदस्य थप्नुहोस्</span>
+            </button>
+          </div>
+          <div id="groupMembersList" class="members-cards-container">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- 3.3 Group Transactions Sub-View -->
+        <div id="group-subview-transactions" class="subview-panel">
+          <div class="view-header">
+            <div class="search-box">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="groupSearchInput" class="search-input" placeholder="समूह लेनदेन खोज्नुहोस्...">
+            </div>
+            <button class="btn-primary-sm" id="openAddGroupTxBtn">
+              ➕ <span data-i18n="addTx">नयाँ लेनदेन</span>
+            </button>
+          </div>
+          <div id="groupTransactionsList" class="tx-cards-container">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= 4. REPORTS & ANALYTICS VIEW ================= -->
+      <section id="view-reports" class="view-section">
+        
+        <div class="report-header-card">
+          <div class="report-header-info">
+            <h2 class="report-title" data-i18n="reportsTitle">वित्तीय विश्लेषण र प्रतिवेदन</h2>
+            <p class="report-subtitle" data-i18n="reportsSubtitle">मासिक खर्चको विधागत विश्लेषण र प्रतिवेदन डाउनलोड गर्नुहोस्।</p>
+          </div>
+          <div class="report-month-picker">
+            <label for="reportMonthSelect" class="sr-only">महिना</label>
+            <select id="reportMonthSelect" class="month-dropdown"></select>
+          </div>
+        </div>
+
+        <!-- Category Wise Analytics Card -->
+        <div class="dashboard-section-card">
+          <div class="section-card-header">
+            <h3 class="section-title">
+              <span>📈</span> <span data-i18n="categoryBreakdown">विधागत खर्च विभाजन (Category Breakdown)</span>
+            </h3>
+            <span class="badge-total" id="reportMonthTotal">रु 0.00</span>
+          </div>
+          <div id="categoryAnalyticsBars" class="category-bars-container">
+            <!-- Dynamically generated bars -->
+          </div>
+        </div>
+
+        <!-- Report Download Actions -->
+        <div class="dashboard-section-card">
+          <div class="section-card-header">
+            <h3 class="section-title">
+              <span>📥</span> <span data-i18n="downloadReports">प्रतिवेदन डाउनलोडहरू (Report Downloads)</span>
+            </h3>
+          </div>
+
+          <div class="download-options-grid">
+            <!-- Monthly Personal Bill -->
+            <div class="report-download-item">
+              <div class="download-item-info">
+                <span class="download-icon">📄</span>
+                <div>
+                  <h4 data-i18n="monthlyPersonalBill">व्यक्तिगत मासिक खर्च रसिद</h4>
+                  <p data-i18n="monthlyPersonalBillDesc">छानिएको महिनाको सम्पूर्ण व्यक्तिगत खर्चको आधिकारिक रसिद (PDF)</p>
+                </div>
+              </div>
+              <button class="btn-download-action" id="downloadPersonalBillBtn">
+                <span data-i18n="generatePdf">PDF हेर्नुहोस् / छाप्नुहोस्</span>
+              </button>
+            </div>
+
+            <!-- Custom Group Report -->
+            <div class="report-download-item">
+              <div class="download-item-info">
+                <span class="download-icon">👥📊</span>
+                <div>
+                  <h4 data-i18n="customGroupReport">कस्टम समूह हिसाब रिपोर्ट</h4>
+                  <p data-i18n="customGroupReportDesc">मिति दायरा अनुसार समूह हिसाब, कसले कति तिर्यो र फरफारक तालिका (PDF, Excel, CSV)</p>
+                </div>
+              </div>
+              <button class="btn-download-action" id="openCustomReportDialogBtn">
+                <span data-i18n="configureExport">रिपोर्ट कन्फिगर र डाउनलोड</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="mobile-bottom-bar" aria-label="Mobile Navigation">
+      <button class="bnav-btn active" data-tab="home" id="bnavHome">
+        <span class="bnav-icon">🏠</span>
+        <span class="bnav-text" data-i18n="tabHome">गृहपृष्ठ</span>
+      </button>
+      <button class="bnav-btn" data-tab="personal" id="bnavPersonal">
+        <span class="bnav-icon">👤</span>
+        <span class="bnav-text" data-i18n="tabPersonal">व्यक्तिगत</span>
+      </button>
+      <button class="bnav-btn" data-tab="group" id="bnavGroup">
+        <span class="bnav-icon">👥</span>
+        <span class="bnav-text" data-i18n="tabGroup">समूह</span>
+      </button>
+      <button class="bnav-btn" data-tab="reports" id="bnavReports">
+        <span class="bnav-icon">📊</span>
+        <span class="bnav-text" data-i18n="tabReports">रिपोर्ट</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- ================= MODALS & DIALOGS ================= -->
+
+  <!-- 1. Add / Edit Personal Expense Modal -->
+  <div id="personalExpenseModal" class="modal-backdrop hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="personalModalTitle" data-i18n="addExpense">खर्च थप्नुहोस्</h3>
+        <button class="close-modal-btn" data-close="personalExpenseModal">✕</button>
+      </div>
+      <form id="personalExpenseForm" class="modal-form">
+        <input type="hidden" id="peId" value="0">
+        
+        <div class="form-group">
+          <label for="peTitle" data-i18n="title">शीर्षक (Title) *</label>
+          <input type="text" id="peTitle" class="form-input" required placeholder="उदा: खाजा, तरकारी, भाडा...">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-half">
+            <label for="peAmount" data-i18n="amount">रकम (NPR रु) *</label>
+            <input type="number" id="peAmount" class="form-input" step="any" min="0.01" required placeholder="0.00">
+          </div>
+          <div class="form-group col-half">
+            <label for="peCategory" data-i18n="category">विधा (Category) *</label>
+            <select id="peCategory" class="form-input" required>
+              <option value="Food">खाना (Food)</option>
+              <option value="Transport">यातायात (Transport)</option>
+              <option value="Education">शिक्षा (Education)</option>
+              <option value="Rent">घरभाडा (Rent)</option>
+              <option value="Shopping">किनमेल (Shopping)</option>
+              <option value="Entertainment">मनोरञ्जन (Entertainment)</option>
+              <option value="Health">स्वास्थ्य (Health)</option>
+              <option value="Utilities">उपयोगिता (Utilities)</option>
+              <option value="Others">अन्य (Others)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-half">
+            <label for="peDate" data-i18n="date">मिति (Date) *</label>
+            <input type="date" id="peDate" class="form-input" required>
+          </div>
+          <div class="form-group col-half">
+            <label for="peTime" data-i18n="time">समय (Time) *</label>
+            <input type="time" id="peTime" class="form-input" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="peDescription" data-i18n="description">विवरण (Description - optional)</label>
+          <input type="text" id="peDescription" class="form-input" placeholder="विस्तृत विवरण...">
+        </div>
+
+        <div class="form-group">
+          <label for="peNotes" data-i18n="notes">टिप्पणी (Notes - optional)</label>
+          <textarea id="peNotes" class="form-textarea" rows="2" placeholder="थप टिप्पणी वा नोटहरू..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-close="personalExpenseModal" data-i18n="cancel">रद्द गर्नुहोस्</button>
+          <button type="submit" class="btn-primary" data-i18n="save">बचत गर्नुहोस्</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Add / Edit Group Transaction Modal -->
+  <div id="groupTxModal" class="modal-backdrop hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="groupTxModalTitle" data-i18n="addGroupTx">समूह खर्च थप्नुहोस्</h3>
+        <button class="close-modal-btn" data-close="groupTxModal">✕</button>
+      </div>
+      <form id="groupTxForm" class="modal-form">
+        <input type="hidden" id="gtId" value="0">
+
+        <div class="form-group">
+          <label for="gtName" data-i18n="title">खर्च शीर्षक (Title / Reason) *</label>
+          <input type="text" id="gtName" class="form-input" required placeholder="उदा: रेस्टुरेन्ट बिल, कोठा भाडा, ट्याक्सी...">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-half">
+            <label for="gtAmount" data-i18n="amount">कुल रकम (Total NPR रु) *</label>
+            <input type="number" id="gtAmount" class="form-input" step="any" min="0.01" required placeholder="0.00">
+          </div>
+          <div class="form-group col-half">
+            <label for="gtPaidBy" data-i18n="paidBy">कसले तिर्यो? (Paid By) *</label>
+            <select id="gtPaidBy" class="form-input" required></select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-half">
+            <label for="gtDate" data-i18n="date">मिति (Date) *</label>
+            <input type="date" id="gtDate" class="form-input" required>
+          </div>
+          <div class="form-group col-half">
+            <label for="gtTime" data-i18n="time">समय (Time) *</label>
+            <input type="time" id="gtTime" class="form-input" required>
+          </div>
+        </div>
+
+        <!-- Split Members Selection -->
+        <div class="form-group">
+          <div class="split-header-row">
+            <label data-i18n="splitWith">कसकसमा बाँड्ने? (Split With Whom) *</label>
+            <div class="split-bulk-actions">
+              <button type="button" class="link-btn" id="selectAllMembersBtn">सबै छान्नुहोस्</button>
+              <span>|</span>
+              <button type="button" class="link-btn" id="deselectAllMembersBtn">हटाउनुहोस्</button>
+            </div>
+          </div>
+          <div id="splitMembersCheckboxes" class="split-checkboxes-box">
+            <!-- Member checkboxes rendered dynamically -->
+          </div>
+          <div class="split-calc-preview" id="splitCalcPreview">
+            <span>प्रति व्यक्ति भाग: <strong>रु 0.00</strong></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="gtNotes" data-i18n="notes">टिप्पणी (Notes - optional)</label>
+          <textarea id="gtNotes" class="form-textarea" rows="2" placeholder="थप जानकारी..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-close="groupTxModal" data-i18n="cancel">रद्द गर्नुहोस्</button>
+          <button type="submit" class="btn-primary" data-i18n="save">बचत गर्नुहोस्</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Add / Edit Group Member Modal -->
+  <div id="groupMemberModal" class="modal-backdrop hidden">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-header">
+        <h3 id="memberModalTitle" data-i18n="addMember">सदस्य थप्नुहोस्</h3>
+        <button class="close-modal-btn" data-close="groupMemberModal">✕</button>
+      </div>
+      <form id="groupMemberForm" class="modal-form">
+        <input type="hidden" id="gmId" value="0">
+
+        <div class="form-group">
+          <label for="gmName" data-i18n="memberName">सदस्यको नाम (Name) *</label>
+          <input type="text" id="gmName" class="form-input" required placeholder="उदा: बिबास लामिछाने">
+        </div>
+
+        <div class="form-group">
+          <label for="gmPhone" data-i18n="memberPhone">फोन नम्बर (Phone - optional)</label>
+          <input type="tel" id="gmPhone" class="form-input" placeholder="उदा: 98XXXXXXXX">
+        </div>
+
+        <div class="form-group">
+          <label for="gmNotes" data-i18n="notes">टिप्पणी (Notes - optional)</label>
+          <input type="text" id="gmNotes" class="form-input" placeholder="सम्बन्ध, कोठा नं, आदि...">
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-close="groupMemberModal" data-i18n="cancel">रद्द गर्नुहोस्</button>
+          <button type="submit" class="btn-primary" data-i18n="save">बचत गर्नुहोस्</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Set Budget Modal -->
+  <div id="budgetModal" class="modal-backdrop hidden">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-header">
+        <h3 data-i18n="setBudget">मासिक बजेट सेट गर्नुहोस्</h3>
+        <button class="close-modal-btn" data-close="budgetModal">✕</button>
+      </div>
+      <form id="budgetForm" class="modal-form">
+        <div class="form-group">
+          <label for="budgetMonthInput" data-i18n="selectMonth">महिना (Month Key)</label>
+          <input type="month" id="budgetMonthInput" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label for="budgetAmountInput" data-i18n="enterBudgetAmount">मासिक बजेट रकम (रु)</label>
+          <input type="number" id="budgetAmountInput" class="form-input" step="any" min="0" required placeholder="25000">
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-close="budgetModal" data-i18n="cancel">रद्द गर्नुहोस्</button>
+          <button type="submit" class="btn-primary" data-i18n="save">बचत गर्नुहोस्</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. Profile Edit Modal -->
+  <div id="profileModal" class="modal-backdrop hidden">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-header">
+        <h3 data-i18n="editProfile">प्रोफाइल सम्पादन</h3>
+        <button class="close-modal-btn" data-close="profileModal">✕</button>
+      </div>
+      <form id="profileForm" class="modal-form">
+        <div class="form-group">
+          <label for="profileNameInput" data-i18n="userName">तपाईंको नाम (Your Name)</label>
+          <input type="text" id="profileNameInput" class="form-input" required placeholder="User Name">
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-close="profileModal" data-i18n="cancel">रद्द गर्नुहोस्</button>
+          <button type="submit" class="btn-primary" data-i18n="save">बचत गर्नुहोस्</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6. Password '100' Secure Delete Confirmation Modal -->
+  <div id="secureDeleteModal" class="modal-backdrop hidden">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-header danger-header">
+        <h3 data-i18n="deleteConfirmTitle">रेकर्ड हटाउने पुष्टि (Secure Deletion)</h3>
+        <button class="close-modal-btn" data-close="secureDeleteModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="delete-warning-text" id="secureDeleteMessage">
+          दुर्घटनाबस डेटा हराउनबाट बच्न कृपया सुरक्षा पासवर्ड <strong>100</strong> प्रविष्ट गर्नुहोस्:
+        </p>
+        <div class="form-group">
+          <input type="number" id="secureDeletePasswordInput" class="form-input text-center" placeholder="100">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" data-close="secureDeleteModal" data-i18n="cancel">रद्द गर्नुहोस्</button>
+        <button type="button" class="btn-danger" id="confirmSecureDeleteBtn" disabled data-i18n="delete">मेटाउनुहोस्</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Printable Bill / Receipt Viewer Modal -->
+  <div id="billViewerModal" class="modal-backdrop hidden">
+    <div class="modal-dialog modal-bill">
+      <div class="modal-header no-print">
+        <h3 data-i18n="billReceipt">आधिकारिक रसिद (Official Bill Receipt)</h3>
+        <div class="bill-modal-actions">
+          <button class="btn-print" id="printBillBtn">🖨️ छाप्नुहोस् / PDF</button>
+          <button class="close-modal-btn" data-close="billViewerModal">✕</button>
+        </div>
+      </div>
+      
+      <!-- Printable Bill Paper -->
+      <div class="bill-paper" id="billPaperContent">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. Custom Group Report Configuration Modal -->
+  <div id="customReportModal" class="modal-backdrop hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 data-i18n="configureCustomReport">कस्टम समूह हिसाब रिपोर्ट तयार गर्नुहोस्</h3>
+        <button class="close-modal-btn" data-close="customReportModal">✕</button>
+      </div>
+      <form id="customReportForm" class="modal-form">
+        <div class="form-group">
+          <label for="crFilterType">समय दायरा (Filter Period)</label>
+          <select id="crFilterType" class="form-input">
+            <option value="all">सबै समय (All Time)</option>
+            <option value="month">निश्चित महिना (Specific Month)</option>
+            <option value="year">निश्चित वर्ष (Specific Year)</option>
+            <option value="custom">कस्टम मिति दायरा (Custom Date Range)</option>
+          </select>
+        </div>
+
+        <div class="form-group hidden" id="crMonthRow">
+          <label for="crMonthKey">महिना चयन गर्नुहोस्</label>
+          <input type="month" id="crMonthKey" class="form-input">
+        </div>
+
+        <div class="form-group hidden" id="crYearRow">
+          <label for="crYearKey">वर्ष (Year YYYY)</label>
+          <input type="number" id="crYearKey" class="form-input" min="2000" max="2100" value="2026">
+        </div>
+
+        <div class="form-row hidden" id="crCustomDateRow">
+          <div class="form-group col-half">
+            <label for="crStartDate">सुरु मिति</label>
+            <input type="date" id="crStartDate" class="form-input">
+          </div>
+          <div class="form-group col-half">
+            <label for="crEndDate">अन्त्य मिति</label>
+            <input type="date" id="crEndDate" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>डाउनलोड ढाँचा (Export Format)</label>
+          <div class="format-radio-group">
+            <label class="radio-label">
+              <input type="radio" name="crFormat" value="pdf" checked> 📄 PDF (छाप्न मिल्ने रसिद)
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="crFormat" value="excel"> 📊 Excel (.xls/HTML तालिका)
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="crFormat" value="csv"> 📝 CSV (डाटा स्प्रेडसिट)
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-close="customReportModal" data-i18n="cancel">रद्द गर्नुहोस्</button>
+          <button type="submit" class="btn-primary" data-i18n="generateReport">रिपोर्ट तयार गर्नुहोस्</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 9. Settings Modal -->
+  <div id="settingsModal" class="modal-backdrop hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 data-i18n="settingsTitle">एप सेटिङहरू (Settings)</h3>
+        <button class="close-modal-btn" data-close="settingsModal">✕</button>
+      </div>
+      <div class="settings-content">
+
+        <!-- App Overview & APK Download Card -->
+        <div class="settings-card highlight-card">
+          <div class="settings-card-header">
+            <img src="/icons/icon.svg" alt="App Icon" class="settings-app-icon">
+            <div>
+              <h4>अर्थ मन्त्रालय (Artha Mantralaya)</h4>
+              <p>v1.0.0 • Offline Native Android APK + PWA Web App</p>
+            </div>
+          </div>
+          <div class="settings-apk-info">
+            <p>नेटिभ एन्ड्रोइड एप्लिकेसन डाउनलोड गर्न उपलब्ध छ (21.8 MB APK):</p>
+            <a href="/download/artha-mantralaya.apk" download="artha-mantralaya.apk" class="btn-primary-block">
+              📥 Android APK डाउनलोड गर्नुहोस् (21.8 MB)
+            </a>
+          </div>
+        </div>
+
+        <!-- Preferences -->
+        <div class="settings-card">
+          <h4 class="settings-group-title" data-i18n="preferences">प्राथमिकताहरू (Preferences)</h4>
+          
+          <div class="setting-row">
+            <div>
+              <div class="setting-label" data-i18n="language">भाषा (Language)</div>
+              <div class="setting-desc">नेपाली (Nepali) वा English छान्नुहोस्</div>
+            </div>
+            <select id="settingLanguageSelect" class="form-input-sm">
+              <option value="ne">नेपाली (Nepali)</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+
+          <div class="setting-row">
+            <div>
+              <div class="setting-label" data-i18n="theme">थिम (Color Theme)</div>
+              <div class="setting-desc">उज्यालो (Light) वा अध्याँरो (Dark) मोड</div>
+            </div>
+            <select id="settingThemeSelect" class="form-input-sm">
+              <option value="light">☀️ Light Theme</option>
+              <option value="dark">🌙 Dark Theme</option>
+            </select>
+          </div>
+
+          <div class="setting-row">
+            <div>
+              <div class="setting-label" data-i18n="calendarMode">पात्रो प्रणाली (Calendar System)</div>
+              <div class="setting-desc">नेपाली वि.सं. (BS) वा अंग्रेजी सन् (AD)</div>
+            </div>
+            <select id="settingCalendarSelect" class="form-input-sm">
+              <option value="bs">नेपाली वि.सं. (BS)</option>
+              <option value="ad">English AD</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Security PIN -->
+        <div class="settings-card">
+          <h4 class="settings-group-title" data-i18n="securityPinTitle">सुरक्षा PIN (App Lock)</h4>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label" data-i18n="securityPin">४-अंकको सुरक्षा PIN</div>
+              <div class="setting-desc" id="pinStatusDesc">PIN निष्क्रिय छ</div>
+            </div>
+            <button class="btn-secondary-sm" id="setupPinBtn">PIN सेट / फेर्नुहोस्</button>
+          </div>
+        </div>
+
+        <!-- Backup & Restore -->
+        <div class="settings-card">
+          <h4 class="settings-group-title" data-i18n="backupRestore">ब्याकअप र पुनःस्थापना (Backup & Restore)</h4>
+          <p class="setting-desc" data-i18n="backupDesc">तपाईंको सम्पूर्ण डाटा JSON फाइलको रूपमा सुरक्षित गर्नुहोस् वा पूर्ववत फाइलबाट लोड गर्नुहोस्। यो ब्याकअप एन्ड्रोइड एपसँग पूर्ण मिल्छ।</p>
+          <div class="backup-actions-row">
+            <button class="btn-secondary" id="exportBackupBtn">
+              💾 <span data-i18n="exportBackup">JSON ब्याकअप डाउनलोड</span>
+            </button>
+            <label class="btn-secondary file-upload-label">
+              📥 <span data-i18n="restoreBackup">ब्याकअप लोड गर्नुहोस्</span>
+              <input type="file" id="restoreFileInput" accept=".json" class="hidden">
+            </label>
+          </div>
+        </div>
+
+        <!-- Danger Zone: Reset -->
+        <div class="settings-card danger-card">
+          <h4 class="settings-group-title text-danger" data-i18n="dangerZone">खतरा क्षेत्र (Danger Zone)</h4>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label text-danger" data-i18n="resetAppData">सबै डाटा खाली गर्नुहोस्</div>
+              <div class="setting-desc">सम्पूर्ण व्यक्तिगत र समूह रेकर्डहरू पूर्ण रूपमा मेटाउनुहोस्</div>
+            </div>
+            <button class="btn-danger-sm" id="resetAppDataBtn" data-i18n="reset">रिसेट</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notifications -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- JavaScript Modules -->
+  <script src="/app.js"></script>
+</body>
+</html>

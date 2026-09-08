@@ -1,0 +1,13 @@
+{
+  "name": "artha-mantralaya-web",
+  "version": "1.0.0",
+  "description": "Production Web App & Website for Artha Mantralaya (Offline Expense Manager & Group Splitter)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["expense-manager", "nepali-calendar", "group-split", "pwa", "artha-mantralaya"],
+  "author": "Bibash Lamichhane",
+  "license": "MIT"
+}

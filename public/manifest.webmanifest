@@ -1,0 +1,24 @@
+{
+  "name": "अर्थ मन्त्रालय (Artha Mantralaya)",
+  "short_name": "Artha Mantralaya",
+  "description": "Offline Expense Manager & Group Splitter",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0F172A",
+  "theme_color": "#1976D2",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ],
+  "categories": ["finance", "productivity", "utilities"]
+}

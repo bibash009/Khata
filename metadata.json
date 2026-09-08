@@ -1,0 +1,6 @@
+{
+  "name": "Artha Mantralaya",
+  "description": "Offline Expense Manager & Group Splitter",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
